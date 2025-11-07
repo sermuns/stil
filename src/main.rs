@@ -36,6 +36,10 @@ struct Args {
     /// Which files/directories to NOT include in the output
     #[arg(short, long, value_delimiter = ',')]
     ignored: Vec<PathBuf>,
+
+    /// On which path the final page will be deployed
+    #[arg(short, long, default_value = "/")]
+    url_path: String,
 }
 
 fn generate_html(dir_entries: impl Iterator<Item = PathBuf>) -> String {
@@ -48,6 +52,8 @@ fn generate_html(dir_entries: impl Iterator<Item = PathBuf>) -> String {
                 link rel="icon" type="image/svg+xml" href={"data:image/svg+xml;base64,"(LOGO_B64) };
             }
             body {
+                a href=".." {"<-"};
+                a href=(&ARGS.url_path) {"⌂"};
                 ul {
                     @for entry in dir_entries {
                         a href=(entry.to_string_lossy()) { (entry.to_string_lossy()) }
@@ -61,19 +67,26 @@ fn generate_html(dir_entries: impl Iterator<Item = PathBuf>) -> String {
 
 /// Recurse into directory structure
 fn build(root: &Path, output_dir: &Path) -> Result<()> {
+    let to = &output_dir.join(root.strip_prefix("./")?);
     if root.is_file() {
+        fs::create_dir_all(to.parent().unwrap())?;
         let from = root;
-        let to = &output_dir.join(root);
         if fs::hard_link(from, output_dir.join(root)).is_err() {
             fs::copy(from, to).with_context(|| {
                 format!("failed copying {} to {}", &from.display(), &to.display())
             })?;
         };
     } else {
+        fs::create_dir_all(to)?;
         let dir_entries: Vec<DirEntry> = root.read_dir()?.filter_map(|e| e.ok()).collect();
         fs::write(
-            output_dir.join("index.html"),
-            generate_html(dir_entries.iter().map(|e| e.path())),
+            to.join("index.html"),
+            generate_html(dir_entries.iter().map(|e| {
+                e.path()
+                    .strip_prefix(e.path().parent().unwrap())
+                    .unwrap()
+                    .into()
+            })),
         )
         .context("unable to write output index.html")?;
         for entry in root.read_dir()? {
