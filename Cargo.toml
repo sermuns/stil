@@ -1,0 +1,11 @@
+[package]
+name = "static-listing"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.100"
+clap = { version = "4.5.51", features = ["derive"] }
+maud = "0.27.0"
+thiserror = "2.0.17"
+walkdir = "2.5.0"
