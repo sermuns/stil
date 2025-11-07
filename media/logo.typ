@@ -1,4 +1,4 @@
-#let rusty-red = rgb(228, 58, 37)
+#import "lib.typ": *
 
 #set page(
   height: 1em,
@@ -12,8 +12,7 @@
     radius: 10%,
   ),
 )
-#set text(font: "Libertinus Sans")
-#set place(center + horizon)
+#set text(font: "Libertinus Sans", fill: darker)
+#set align(center + horizon)
 
-#place(image("directory.svg", height: 9pt))
-// #place(dx: -2pt, text(rusty-red.desaturate(50%).lighten(70%))[L])
+#image(bytes(directory-bytes), height: 80%)
