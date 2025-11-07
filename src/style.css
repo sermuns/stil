@@ -5,3 +5,7 @@
 a {
 	display: block;
 }
+
+header {
+	display: flex;
+}

@@ -1,4 +1,3 @@
-#![allow(unused_variables)]
 use anyhow::{Context, Result};
 use clap::Parser;
 use maud::{DOCTYPE, html};
@@ -6,7 +5,7 @@ use std::fs::DirEntry;
 use std::sync::LazyLock;
 use std::{
     fs,
-    path::{Path, PathBuf},
+    path::{Ancestors, Path, PathBuf},
 };
 
 const LOGO_B64: &str = env!("LOGO_B64");
@@ -42,7 +41,15 @@ struct Args {
     url_path: String,
 }
 
-fn generate_html(dir_entries: impl Iterator<Item = PathBuf>) -> String {
+struct UsefulDirEntry {
+    full_path: PathBuf,
+    relative_path: PathBuf,
+}
+
+fn generate_html(
+    dir_entries: impl Iterator<Item = UsefulDirEntry>,
+    ancestors: Ancestors,
+) -> String {
     html! {
         (DOCTYPE)
         html {
@@ -52,11 +59,16 @@ fn generate_html(dir_entries: impl Iterator<Item = PathBuf>) -> String {
                 link rel="icon" type="image/svg+xml" href={"data:image/svg+xml;base64,"(LOGO_B64) };
             }
             body {
-                a href=".." {"<-"};
-                a href=(&ARGS.url_path) {"⌂"};
-                ul {
-                    @for entry in dir_entries {
-                        a href=(entry.to_string_lossy()) { (entry.to_string_lossy()) }
+                header {
+                    @for ancestor in ancestors {
+                        a href=(ancestor.to_string_lossy()) { (ancestor.to_string_lossy()) }
+                    }
+                }
+                main {
+                    ul {
+                        @for entry in dir_entries {
+                            a href=(entry.full_path.to_string_lossy()) {(entry.relative_path.to_string_lossy()) }
+                        }
                     }
                 }
             }
@@ -81,12 +93,17 @@ fn build(root: &Path, output_dir: &Path) -> Result<()> {
         let dir_entries: Vec<DirEntry> = root.read_dir()?.filter_map(|e| e.ok()).collect();
         fs::write(
             to.join("index.html"),
-            generate_html(dir_entries.iter().map(|e| {
-                e.path()
-                    .strip_prefix(e.path().parent().unwrap())
-                    .unwrap()
-                    .into()
-            })),
+            generate_html(
+                dir_entries.iter().map(|e| UsefulDirEntry {
+                    full_path: output_dir.join(e.path()),
+                    relative_path: e
+                        .path()
+                        .strip_prefix(e.path().parent().unwrap())
+                        .unwrap()
+                        .to_path_buf(),
+                }),
+                root.ancestors(),
+            ),
         )
         .context("unable to write output index.html")?;
         for entry in root.read_dir()? {
