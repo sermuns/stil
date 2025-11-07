@@ -4,8 +4,7 @@ use maud::{DOCTYPE, html};
 use std::{fs, path::PathBuf};
 use walkdir::WalkDir;
 
-const ICON_STR: &'static str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/media/logo.svg"));
-const ICON_B64: &[u8] = &data_encoding_macro::base64!("filestylecss");
+const LOGO_B64: &str = env!("LOGO_B64");
 const STYLE: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/style.css"));
 
 #[derive(Parser, Debug)]
@@ -33,11 +32,12 @@ fn generate_html(paths: impl Iterator<Item = PathBuf>, title: &str) -> String {
         (DOCTYPE)
         html {
             head {
-                icon
-                title {(&title)}
-                style {(STYLE)}
+                link rel="icon" type="image/svg+xml" href={"data:image/svg+xml;base64,"(LOGO_B64) };
+                title {(&title)};
+                style {(STYLE)};
             }
             body {
+                img src={"data:image/svg+xml;base64,"(LOGO_B64)};
                 ul {
                     @for path in paths {
                         li { (path.to_string_lossy()) }
