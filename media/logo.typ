@@ -4,10 +4,16 @@
   height: 1em,
   width: 1em,
   margin: 0em,
-  fill: rusty-red,
+  fill: none,
+  background: box(
+    width: 100%,
+    height: 100%,
+    fill: rusty-red,
+    radius: 10%,
+  ),
 )
 #set text(font: "Libertinus Sans")
 #set place(center + horizon)
 
-#place(dx: 1.4pt, dy: -1pt, image("directory.svg", height: 5.5pt))
-#place(dx: -2pt, text(rusty-red.desaturate(50%).lighten(70%))[L])
+#place(image("directory.svg", height: 9pt))
+// #place(dx: -2pt, text(rusty-red.desaturate(50%).lighten(70%))[L])
