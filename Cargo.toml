@@ -1,7 +1,13 @@
 [package]
-name = "static-listing"
+name = "stil"
 version = "0.1.0"
+description = "generate STatic site from Index Listing of directory"
 edition = "2024"
+repository = "https://github.com/sermuns/meread"
+license = "WTFPL"
+keywords = ["static-site-generator", "listing", "directory", "pages"]
+categories = ["command-line-utilities", "web-programming", "filesystem"]
+authors = ["Samuel Åkesson <sermuns@lysator.liu.se>"]
 
 [dependencies]
 anyhow = "1.0.100"

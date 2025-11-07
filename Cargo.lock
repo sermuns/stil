@@ -202,7 +202,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "static-listing"
+name = "stil"
 version = "0.1.0"
 dependencies = [
  "anyhow",
