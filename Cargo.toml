@@ -13,8 +13,6 @@ authors = ["Samuel Åkesson <sermuns@lysator.liu.se>"]
 anyhow = "1.0.100"
 clap = { version = "4.5.51", features = ["derive"] }
 maud = "0.27.0"
-thiserror = "2.0.17"
-walkdir = "2.5.0"
 
 [build-dependencies]
 base64 = "0.22.1"
