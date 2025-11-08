@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use clap::Parser;
 use maud::{DOCTYPE, html};
-use std::ffi::OsStr;
+use std::ffi::{OsStr, OsString};
 use std::fs::DirEntry;
 use std::sync::LazyLock;
 use std::time::Instant;
@@ -55,14 +55,14 @@ struct Args {
 }
 
 struct UsefulDirEntry {
-    path: PathBuf,
-    no_root_path: PathBuf,
+    no_root_path: OsString,
 }
 
 fn generate_html<'g>(
     useful_dir_entries: impl Iterator<Item = UsefulDirEntry>,
-    ancestor_paths: impl Iterator<Item = &'g Path>,
+    root: &'g Path,
 ) -> String {
+    let ancestor_paths = root.ancestors();
     let mut ancestor_paths_reversed = ancestor_paths.collect::<Vec<&'g Path>>().into_iter().rev();
     let root_ancestor = ancestor_paths_reversed.next().expect("must have root");
     let rest_ancestors = ancestor_paths_reversed.skip(1);
@@ -82,11 +82,11 @@ fn generate_html<'g>(
             }
             body {
                 header {
-                    a href=(ARGS.url_path.join(&ARGS.output_dir).join(root_ancestor).to_string_lossy()) {
+                    a href=(&ARGS.url_path.to_string_lossy()) {
                         ("/")
                     }
                     @for ancestor_path in rest_ancestors {
-                        a href=(ARGS.url_path.join(&ARGS.output_dir).join(ancestor_path).to_string_lossy()) {
+                        a href={(ARGS.url_path.join(ancestor_path.strip_prefix(".").unwrap()).to_string_lossy()) "/"} {
                             (ancestor_path.file_name().unwrap_or_else(|| OsStr::new("/")).to_string_lossy())
                         }
                         span { "/" }
@@ -94,7 +94,7 @@ fn generate_html<'g>(
                 }
                 main {
                     @for entry in useful_dir_entries {
-                        a href=(ARGS.url_path.join(entry.path).to_string_lossy()) {
+                        a href={(entry.no_root_path.to_string_lossy()) "/"} {
                             (entry.no_root_path.to_string_lossy())
                         }
                     }
@@ -111,7 +111,7 @@ fn generate_html<'g>(
 }
 
 fn build(root: &Path) -> Result<()> {
-    let to = &ARGS.output_dir.join(root.strip_prefix("./")?);
+    let to = &ARGS.output_dir.join(root.strip_prefix(".")?);
     if root.is_file() {
         fs::create_dir_all(to.parent().unwrap())?;
         let from = root;
@@ -127,14 +127,9 @@ fn build(root: &Path) -> Result<()> {
             to.join("index.html"),
             generate_html(
                 dir_entries.iter().map(|e| UsefulDirEntry {
-                    path: ARGS.output_dir.join(e.path()),
-                    no_root_path: e
-                        .path()
-                        .strip_prefix(e.path().parent().unwrap())
-                        .unwrap()
-                        .to_path_buf(),
+                    no_root_path: e.file_name(),
                 }),
-                root.ancestors(), // skip self
+                root,
             ),
         )
         .context("unable to write output index.html")?;
