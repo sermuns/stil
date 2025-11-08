@@ -1,12 +1,19 @@
 use anyhow::{Context, Result};
 use clap::Parser;
 use maud::{DOCTYPE, html};
+use std::ffi::OsStr;
 use std::fs::DirEntry;
 use std::sync::LazyLock;
 use std::{
     fs,
-    path::{Ancestors, Path, PathBuf},
+    path::{Path, PathBuf},
 };
+use time::OffsetDateTime;
+
+use time::format_description::BorrowedFormatItem;
+use time::macros::format_description;
+
+const DATE_FORMAT: &[BorrowedFormatItem<'_>] = format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
 
 const LOGO_B64: &str = env!("LOGO_B64");
 const STYLE: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/style.css"));
@@ -38,18 +45,31 @@ struct Args {
 
     /// On which path the final page will be deployed
     #[arg(short, long, default_value = "/")]
-    url_path: String,
+    url_path: PathBuf,
+
+    /// Whether to have footer in generated HTML
+    #[arg(long, default_value_t = true)]
+    footer: bool,
 }
 
 struct UsefulDirEntry {
-    full_path: PathBuf,
-    relative_path: PathBuf,
+    path: PathBuf,
+    no_root_path: PathBuf,
 }
 
-fn generate_html(
-    dir_entries: impl Iterator<Item = UsefulDirEntry>,
-    ancestors: Ancestors,
+fn generate_html<'g>(
+    useful_dir_entries: impl Iterator<Item = UsefulDirEntry>,
+    ancestor_paths: impl Iterator<Item = &'g Path>,
 ) -> String {
+    let mut ancestor_paths_reversed = ancestor_paths.collect::<Vec<&'g Path>>().into_iter().rev();
+    let root_ancestor = ancestor_paths_reversed.next().expect("must have root");
+    let rest_ancestors = ancestor_paths_reversed.skip(1);
+
+    let now_str = OffsetDateTime::now_local()
+        .unwrap_or_else(|_| OffsetDateTime::now_utc())
+        .format(DATE_FORMAT)
+        .unwrap();
+
     html! {
         (DOCTYPE)
         html {
@@ -60,15 +80,26 @@ fn generate_html(
             }
             body {
                 header {
-                    @for ancestor in ancestors {
-                        a href=(ancestor.to_string_lossy()) { (ancestor.to_string_lossy()) }
+                    a href=(ARGS.url_path.join(&ARGS.output_dir).join(root_ancestor).to_string_lossy()) {
+                        ("/")
+                    }
+                    @for ancestor_path in rest_ancestors {
+                        a href=(ARGS.url_path.join(&ARGS.output_dir).join(ancestor_path).to_string_lossy()) {
+                            (ancestor_path.file_name().unwrap_or_else(|| OsStr::new("/")).to_string_lossy())
+                        }
+                        span { "/" }
                     }
                 }
                 main {
-                    ul {
-                        @for entry in dir_entries {
-                            a href=(entry.full_path.to_string_lossy()) {(entry.relative_path.to_string_lossy()) }
+                    @for entry in useful_dir_entries {
+                        a href=(ARGS.url_path.join(entry.path).to_string_lossy()) {
+                            (entry.no_root_path.to_string_lossy())
                         }
+                    }
+                }
+                @if ARGS.footer {
+                    footer {
+                        "Generated " (now_str)
                     }
                 }
             }
@@ -77,13 +108,12 @@ fn generate_html(
     .into_string()
 }
 
-/// Recurse into directory structure
-fn build(root: &Path, output_dir: &Path) -> Result<()> {
-    let to = &output_dir.join(root.strip_prefix("./")?);
+fn build(root: &Path) -> Result<()> {
+    let to = &ARGS.output_dir.join(root.strip_prefix("./")?);
     if root.is_file() {
         fs::create_dir_all(to.parent().unwrap())?;
         let from = root;
-        if fs::hard_link(from, output_dir.join(root)).is_err() {
+        if fs::hard_link(from, ARGS.output_dir.join(root)).is_err() {
             fs::copy(from, to).with_context(|| {
                 format!("failed copying {} to {}", &from.display(), &to.display())
             })?;
@@ -95,14 +125,14 @@ fn build(root: &Path, output_dir: &Path) -> Result<()> {
             to.join("index.html"),
             generate_html(
                 dir_entries.iter().map(|e| UsefulDirEntry {
-                    full_path: output_dir.join(e.path()),
-                    relative_path: e
+                    path: ARGS.output_dir.join(e.path()),
+                    no_root_path: e
                         .path()
                         .strip_prefix(e.path().parent().unwrap())
                         .unwrap()
                         .to_path_buf(),
                 }),
-                root.ancestors(),
+                root.ancestors(), // skip self
             ),
         )
         .context("unable to write output index.html")?;
@@ -116,7 +146,7 @@ fn build(root: &Path, output_dir: &Path) -> Result<()> {
             {
                 continue;
             }
-            build(&entry.path(), &ARGS.output_dir)?;
+            build(&entry.path())?;
         }
     }
     Ok(())
@@ -130,5 +160,5 @@ fn main() -> Result<()> {
     .with_context(|| "unable to remove output dir")?;
     fs::create_dir(&ARGS.output_dir)?;
 
-    build(&ARGS.input_dir, &ARGS.output_dir)
+    build(&ARGS.input_dir)
 }

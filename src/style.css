@@ -1,11 +1,45 @@
 :root {
-		  background-color: #222;
+	background-color: #eee;
+	font-family: "Libertinus Sans", sans-serif;
+	line-height: 1.6;
 }
 
 a {
 	display: block;
+	text-decoration: none;
+	&:hover {
+		text-decoration: underline;
+	}
+	&:active {
+		scale: 0.9;
+	}
+}
+
+body {
+	margin: 0;
+	padding: 1rem;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+main {
+	padding: 1rem;
+	flex: 1;
 }
 
 header {
+	border: 0.1rem black solid;
+	padding: 0.5rem 1rem;
 	display: flex;
+	gap: 0.5rem;
+	>:first-child {
+		font-weight: bold;
+	}
+}
+
+footer {
+	text-align: center;
+	font-size: smaller;
 }
