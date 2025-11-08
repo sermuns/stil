@@ -1,17 +1,21 @@
 :root {
-	background-color: #eee;
+	--background-color: #eee;
+	--foreground-color: #111;
+	--rusty-red: rgb(228, 58, 37);
+
+	background-color: var(--background-color);
+	color: var(--foreground-color);
 	font-family: "Libertinus Sans", sans-serif;
-	line-height: 1.6;
 }
 
 a {
-	display: block;
-	text-decoration: none;
+	text-decoration: unset;
+
 	&:hover {
 		text-decoration: underline;
 	}
 	&:active {
-		scale: 0.9;
+		transform: scale(0.9);
 	}
 }
 
@@ -25,16 +29,24 @@ body {
 }
 
 main {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: .5rem 1rem;
 	padding: 1rem;
 	flex: 1;
+
+	.dir {
+		color: var(--rusty-red);
+		font-weight: bolder;
+	}
 }
 
 header {
-	border: 0.1rem black solid;
+	border-bottom: 0.2rem var(--foreground-color) solid;
 	padding: 0.5rem 1rem;
 	display: flex;
 	gap: 0.5rem;
-	>:first-child {
+	> :first-child {
 		font-weight: bold;
 	}
 }
