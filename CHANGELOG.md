@@ -1,6 +1,11 @@
 # Changelog
 
-## [0.3.2](https://github.com/sermuns/stil/compare/v0.3.1..0.3.2) - 2025-11-08
+## [0.4.0](https://github.com/sermuns/stil/compare/v0.3.2..0.4.0) - 2025-11-09
+
+### 🚀 Features
+
+- show type,name,last-modified,size in columns of the index listing by @sermuns in [87dee97](https://github.com/sermuns/stil/commit/87dee9740adc0516120f396abcf4878c9dd8fd0b)
+## [0.3.2](https://github.com/sermuns/stil/compare/v0.3.1..v0.3.2) - 2025-11-08
 
 ### 🚀 Features
 
@@ -13,6 +18,10 @@
 ### 📚 Documentation
 
 - update readme, show demo by @sermuns in [2b9bdb1](https://github.com/sermuns/stil/commit/2b9bdb111e67f7441472c5270a6dce578eedf31b)
+
+### ⚙️ Miscellaneous Tasks
+
+- Release stil version 0.3.2 by @sermuns in [57dfe35](https://github.com/sermuns/stil/commit/57dfe3527328085178c5c0a3fa22c4c9208e17b9)
 ## [0.3.1](https://github.com/sermuns/stil/compare/v0.3.0..v0.3.1) - 2025-11-08
 
 ### 🚀 Features
