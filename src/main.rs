@@ -3,7 +3,7 @@ use clap::Parser;
 use humansize::{DECIMAL, format_size};
 use maud::{DOCTYPE, PreEscaped, html};
 use std::ffi::{OsStr, OsString};
-use std::fs::{DirEntry, metadata};
+use std::fs::DirEntry;
 use std::os::unix::fs::MetadataExt;
 use std::sync::LazyLock;
 use std::time::Instant;
