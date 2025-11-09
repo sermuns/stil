@@ -64,3 +64,9 @@ Actually, you don't need to install locally. It works fine in docker container:
 ```sh
 docker run -v $(pwd):/app -u $(id -u):$(id -g) ghcr.io/sermuns/stil <arguments to stil>
 ```
+
+# TODO
+
+- [ ] ability to sort listing by column
+- [ ] see thumbnails of photos/videos
+  - [ ] (implement grid view, not just list view?)
