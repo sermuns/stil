@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use clap::Parser;
-use humansize::{DECIMAL, format_size};
+use humansize::{format_size, BINARY};
 use maud::{DOCTYPE, PreEscaped, html};
 use std::ffi::{OsStr, OsString};
 use std::fs::DirEntry;
@@ -184,7 +184,7 @@ fn build(root: &Path) -> Result<()> {
                         },
                         human_size_str: {
                             if let Ok(meta) = &entry_metadata {
-                                format_size(meta.size(), DECIMAL)
+                                format_size(meta.size(), BINARY)
                             } else {
                                 "-".to_string()
                             }
