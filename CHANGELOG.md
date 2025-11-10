@@ -1,10 +1,23 @@
 # Changelog
 
-## [0.4.0](https://github.com/sermuns/stil/compare/v0.3.2..0.4.0) - 2025-11-09
+## [0.4.1](https://github.com/sermuns/stil/compare/v0.4.0..0.4.1) - 2025-11-10
+
+### 🚀 Features
+
+- use binary format for human filesizes by @sermuns in [e0dd6ae](https://github.com/sermuns/stil/commit/e0dd6ae7700ef5ee38476e1433c13fdbcab1affd)
+
+### 🐛 Bug Fixes
+
+- support windows by @sermuns in [5a5a918](https://github.com/sermuns/stil/commit/5a5a9180c45b676f1c11b4765497957d96c1ac05)
+## [0.4.0](https://github.com/sermuns/stil/compare/v0.3.2..v0.4.0) - 2025-11-09
 
 ### 🚀 Features
 
 - show type,name,last-modified,size in columns of the index listing by @sermuns in [87dee97](https://github.com/sermuns/stil/commit/87dee9740adc0516120f396abcf4878c9dd8fd0b)
+
+### ⚙️ Miscellaneous Tasks
+
+- Release stil version 0.4.0 by @sermuns in [4f286db](https://github.com/sermuns/stil/commit/4f286dbdb283bb252c861a6cb7d2154ac5075a4b)
 ## [0.3.2](https://github.com/sermuns/stil/compare/v0.3.1..v0.3.2) - 2025-11-08
 
 ### 🚀 Features
