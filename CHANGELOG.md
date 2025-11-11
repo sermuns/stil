@@ -1,6 +1,17 @@
 # Changelog
 
-## [0.4.1](https://github.com/sermuns/stil/compare/v0.4.0..0.4.1) - 2025-11-10
+## [0.4.2](https://github.com/sermuns/stil/compare/v0.4.1..0.4.2) - 2025-11-11
+
+### 🐛 Bug Fixes
+
+- set meta charset and viewport by @sermuns in [ad8a171](https://github.com/sermuns/stil/commit/ad8a17196200ac9aebe24c30e730e7d415a8654f)
+- add back clap features. by @sermuns in [d14c5e7](https://github.com/sermuns/stil/commit/d14c5e70676ad6c8bd85ae5c25f472e56bfe5592)
+
+### 💼 Other
+
+- bump syn to 2.0.110 by @sermuns in [d581412](https://github.com/sermuns/stil/commit/d581412d75b7bd2c3a6519279e80ead2d4c61766)
+- include less features by @sermuns in [2d0ec70](https://github.com/sermuns/stil/commit/2d0ec704b4a4ff10cb264508baa79acd22ee610b)
+## [0.4.1](https://github.com/sermuns/stil/compare/v0.4.0..v0.4.1) - 2025-11-10
 
 ### 🚀 Features
 
@@ -9,6 +20,10 @@
 ### 🐛 Bug Fixes
 
 - support windows by @sermuns in [5a5a918](https://github.com/sermuns/stil/commit/5a5a9180c45b676f1c11b4765497957d96c1ac05)
+
+### ⚙️ Miscellaneous Tasks
+
+- Release stil version 0.4.1 by @sermuns in [fe06d11](https://github.com/sermuns/stil/commit/fe06d1106170c315e81c01e0421661d6c8b275a3)
 ## [0.4.0](https://github.com/sermuns/stil/compare/v0.3.2..v0.4.0) - 2025-11-09
 
 ### 🚀 Features
