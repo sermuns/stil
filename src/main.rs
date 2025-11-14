@@ -2,8 +2,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use humansize::{BINARY, format_size};
 use maud::{DOCTYPE, PreEscaped, html};
-use std::ffi::{OsStr, OsString};
-use std::fs::DirEntry;
+use std::ffi::OsStr;
 use std::sync::LazyLock;
 use std::time::Instant;
 use std::{
@@ -55,15 +54,15 @@ static ARGS: LazyLock<Args> = LazyLock::new(|| {
     args
 });
 
-struct UsefulDirEntry {
-    path: PathBuf,
-    basename: OsString,
+struct UsefulDirEntry<'u> {
+    path: &'u Path,
+    basename: &'u OsStr,
     last_modified_str: String,
     human_size_str: String,
 }
 
 fn generate_html<'g>(
-    useful_dir_entries: impl Iterator<Item = UsefulDirEntry>,
+    useful_dir_entries: impl Iterator<Item = UsefulDirEntry<'g>>,
     root: &'g Path,
 ) -> String {
     let ancestor_paths_reversed = root
@@ -137,42 +136,38 @@ fn build(root: &Path) -> Result<()> {
         };
     } else {
         fs::create_dir_all(to)?;
-        let mut dir_entries: Vec<DirEntry> = root
+        let mut dir_entries: Vec<PathBuf> = root
             .read_dir()?
             .filter_map(|entry| {
                 if let Ok(e) = entry {
-                    let entry_path = e.path();
+                    let path = e.path();
                     if !ARGS.hidden
-                        && let Some(file_name) = entry_path.file_name()
+                        && let Some(file_name) = path.file_name()
                         && file_name.to_str().unwrap().starts_with(".")
                     {
                         return None;
                     }
 
-                    if ARGS
-                        .ignored
-                        .iter()
-                        .any(|i| Path::new("./").join(i) == entry_path)
-                    {
+                    if ARGS.ignored.iter().any(|i| Path::new("./").join(i) == path) {
                         return None;
                     }
-                    return Some(e);
+                    return Some(path);
                 }
                 None
             })
             .collect();
-        dir_entries.sort_by_key(|e| e.path());
+        dir_entries.sort();
 
         fs::write(
             to.join("index.html"),
             generate_html(
-                dir_entries.iter().map(|e| {
-                    let entry_metadata = e.path().metadata();
+                dir_entries.iter().map(|path| {
+                    let metadata = path.metadata();
                     UsefulDirEntry {
-                        path: e.path(),
-                        basename: e.file_name(),
+                        path,
+                        basename: path.file_name().expect("must have name"),
                         last_modified_str: {
-                            if let Ok(meta) = &entry_metadata {
+                            if let Ok(meta) = &metadata {
                                 if let Ok(modified) = meta.modified() {
                                     let datetime: OffsetDateTime = modified.into();
                                     datetime.format(DATE_FORMAT).unwrap_or("-".to_string())
@@ -184,8 +179,8 @@ fn build(root: &Path) -> Result<()> {
                             }
                         },
                         human_size_str: {
-                            if e.path().is_file()
-                                && let Ok(meta) = &entry_metadata
+                            if let Ok(meta) = &metadata
+                                && meta.is_file()
                             {
                                 format_size(meta.len(), BINARY)
                             } else {
@@ -199,8 +194,8 @@ fn build(root: &Path) -> Result<()> {
         )
         .context("unable to write output index.html")?;
 
-        for entry in dir_entries {
-            build(&entry.path())?;
+        for path in dir_entries {
+            build(&path)?;
         }
     }
     Ok(())
