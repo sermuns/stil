@@ -2,16 +2,14 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use humansize::{BINARY, format_size};
 use maud::{DOCTYPE, PreEscaped, html};
-use std::fi::OsStr;
-use std::sync::LazyLock;
-use std::time::Instant;
 use std::{
+    ffi::OsStr,
     fs,
     path::{Path, PathBuf},
+    sync::LazyLock,
+    time::Instant,
 };
-use time::OffsetDateTime;
-use time::format_description::BorrowedFormatItem;
-use time::macros::format_description;
+use time::{OffsetDateTime, format_description::BorrowedFormatItem, macros::format_description};
 
 const DATE_FORMAT: &[BorrowedFormatItem<'_>] =
     format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
