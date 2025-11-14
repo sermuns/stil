@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use humansize::{BINARY, format_size};
 use maud::{DOCTYPE, PreEscaped, html};
-use std::ffi::OsStr;
+use std::fi::OsStr;
 use std::sync::LazyLock;
 use std::time::Instant;
 use std::{
@@ -49,8 +49,14 @@ struct Args {
 
 static ARGS: LazyLock<Args> = LazyLock::new(|| {
     let mut args = Args::parse();
-    let mut default_ignored = vec![PathBuf::from(".git"), args.output_dir.clone()];
-    args.ignored.append(&mut default_ignored);
+    args.ignored.iter_mut().for_each(|i| {
+        *i = Path::new(".").join(&i);
+    });
+    args.ignored.append(&mut vec![
+        PathBuf::from("./.git"),
+        Path::new(".").join(&args.output_dir),
+    ]);
+    args.ignored.sort();
     args
 });
 
@@ -59,6 +65,7 @@ struct UsefulDirEntry<'u> {
     basename: &'u OsStr,
     last_modified_str: String,
     human_size_str: String,
+    is_dir: bool,
 }
 
 fn generate_html<'g>(
@@ -100,14 +107,15 @@ fn generate_html<'g>(
                     b {"Last modified"}
                     b {"Size"}
                     @for entry in useful_dir_entries {
-                        @if entry.path.is_dir() {
+                        @if entry.is_dir {
                             span class="dir" {(PreEscaped("&#128448;"))}
-                        }
-                        @else {
-                            //span class="file" {(PreEscaped("&#128462;"))}
+                        } @else {
                             span class="file" {}
                         }
-                        a href={(ARGS.url_path.join(entry.path.strip_prefix(".").unwrap()).to_string_lossy()) "/"} {
+                        a href={
+                            (ARGS.url_path.join(entry.path.strip_prefix(".").unwrap()).to_string_lossy())
+                            @if entry.is_dir { "/" }
+                        } {
                             (entry.basename.to_string_lossy())
                         }
                         span {
@@ -143,12 +151,13 @@ fn build(root: &Path) -> Result<()> {
                     let path = e.path();
                     if !ARGS.hidden
                         && let Some(file_name) = path.file_name()
-                        && file_name.to_str().unwrap().starts_with(".")
+                        && file_name.to_string_lossy().starts_with(".")
                     {
                         return None;
                     }
 
-                    if ARGS.ignored.iter().any(|i| Path::new("./").join(i) == path) {
+                    dbg!(&path);
+                    if ARGS.ignored.binary_search(&path).is_ok() {
                         return None;
                     }
                     return Some(path);
@@ -187,6 +196,7 @@ fn build(root: &Path) -> Result<()> {
                                 "-".to_string()
                             }
                         },
+                        is_dir: path.is_dir(),
                     }
                 }),
                 root,
