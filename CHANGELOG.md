@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.4.3](https://github.com/sermuns/stil/compare/v0.4.2..0.4.3) - 2025-11-14
+## [v0.4.3](https://github.com/sermuns/stil/compare/v0.4.2..v0.4.3) - 2025-11-14
 
 ### 🐛 Bug Fixes
 
