@@ -10,14 +10,14 @@ categories = ["command-line-utilities", "web-programming", "filesystem"]
 authors = ["Samuel Åkesson <sermuns@lysator.liu.se>"]
 
 [dependencies]
-anyhow = "1.0.100"
-clap = { version = "4.5.51", features = ["derive"] }
-humansize = "2.1.3"
-maud = "0.27.0"
-time = { version = "0.3.44", features = ["formatting", "local-offset", "macros"], default-features = false }
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+humansize = "2"
+maud = "0.27"
+time = { version = "0.3", features = ["formatting", "local-offset", "macros"], default-features = false }
 
 [build-dependencies]
-base64 = "0.22.1"
+base64 = "0.22"
 
 [profile.release]
 opt-level = 3
